@@ -1,0 +1,175 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Nunito:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Warm cream background */
+    --background: 35 30% 96%;
+    --foreground: 25 25% 20%;
+
+    /* Soft cream cards */
+    --card: 35 40% 98%;
+    --card-foreground: 25 25% 20%;
+
+    --popover: 35 40% 98%;
+    --popover-foreground: 25 25% 20%;
+
+    /* Blush pink primary */
+    --primary: 350 45% 70%;
+    --primary-foreground: 35 30% 98%;
+
+    /* Sage green secondary */
+    --secondary: 140 25% 75%;
+    --secondary-foreground: 140 30% 25%;
+
+    /* Warm muted tones */
+    --muted: 35 20% 92%;
+    --muted-foreground: 25 15% 45%;
+
+    /* Soft pink accent */
+    --accent: 15 60% 85%;
+    --accent-foreground: 25 25% 20%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 35 25% 88%;
+    --input: 35 25% 88%;
+    --ring: 350 45% 70%;
+
+    --radius: 1rem;
+
+    /* Custom colors */
+    --cream: 40 35% 94%;
+    --blush: 350 45% 75%;
+    --blush-light: 350 50% 92%;
+    --sage: 140 25% 70%;
+    --sage-light: 140 30% 90%;
+    --warm-brown: 25 30% 35%;
+    --soft-pink: 15 55% 88%;
+
+    /* Gradients */
+    --gradient-warm: linear-gradient(135deg, hsl(40 35% 94%) 0%, hsl(350 50% 95%) 50%, hsl(140 30% 93%) 100%);
+    --gradient-blush: linear-gradient(135deg, hsl(350 45% 75%) 0%, hsl(350 50% 80%) 100%);
+    --gradient-sage: linear-gradient(135deg, hsl(140 25% 70%) 0%, hsl(140 30% 78%) 100%);
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(25 20% 50% / 0.12);
+    --shadow-lifted: 0 8px 30px -6px hsl(25 20% 50% / 0.18);
+    --shadow-glow-pink: 0 4px 20px -4px hsl(350 45% 70% / 0.3);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 25 20% 10%;
+    --foreground: 35 30% 92%;
+
+    --card: 25 20% 14%;
+    --card-foreground: 35 30% 92%;
+
+    --popover: 25 20% 14%;
+    --popover-foreground: 35 30% 92%;
+
+    --primary: 350 45% 65%;
+    --primary-foreground: 25 20% 10%;
+
+    --secondary: 140 20% 35%;
+    --secondary-foreground: 140 30% 90%;
+
+    --muted: 25 15% 20%;
+    --muted-foreground: 35 20% 65%;
+
+    --accent: 15 40% 25%;
+    --accent-foreground: 35 30% 92%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 25 15% 22%;
+    --input: 25 15% 22%;
+    --ring: 350 45% 65%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Stitch pattern background */
+.stitch-pattern {
+  background-image: 
+    radial-gradient(circle at 1px 1px, hsl(var(--border)) 1px, transparent 0);
+  background-size: 20px 20px;
+}
+
+/* Yarn wave pattern */
+.yarn-wave {
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 10px,
+      hsl(var(--blush-light)) 10px,
+      hsl(var(--blush-light)) 12px
+    );
+  opacity: 0.3;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--blush));
+}
