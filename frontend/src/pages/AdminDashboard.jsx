@@ -8,9 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { FadeInSection } from "@/components/FadeInSection";
 import { useAuth } from '@/contexts/AuthContext';
 import { adminAPI, productsAPI } from '@/lib/api';
@@ -64,10 +63,11 @@ const AdminDashboard = () => {
           setOrdersLoading(true);
           setProductsLoading(true);
           const [ordersData, statsData, productsData] = await Promise.all([
-            adminAPI.getAllOrders({ status: statusFilter !== 'all' ? statusFilter : undefined }),
+            adminAPI.getAllOrders(statusFilter !== 'all' ? { status: statusFilter } : {}),
             adminAPI.getStats(),
             productsAPI.getAll(),
           ]);
+          console.log('Orders data received:', ordersData);
           setOrders(ordersData.orders || []);
           setStats(statsData);
           setProducts(productsData.products || []);
@@ -412,8 +412,9 @@ const AdminDashboard = () => {
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+                          <DialogDescription>Fill in the details below to {editingProduct ? 'update' : 'create'} a product.</DialogDescription>
                         </DialogHeader>
-                        {isFormReady && productForm && productForm.images ? (
+                        {isFormReady && productForm ? (
                           <form onSubmit={handleProductSubmit} className="space-y-4 mt-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
@@ -428,7 +429,7 @@ const AdminDashboard = () => {
                           <div>
                             <Label htmlFor="category">Category *</Label>
                             <Select
-                              value={productForm.category || ''}
+                              value={productForm.category || undefined}
                               onValueChange={(value) => {
                                 if (value === 'add_new') {
                                   setShowAddCategory(true);
@@ -441,7 +442,7 @@ const AdminDashboard = () => {
                                 <SelectValue placeholder="Select category" />
                               </SelectTrigger>
                               <SelectContent>
-                                {categories.map(cat => (
+                                {categories.filter(cat => cat && cat.trim()).map(cat => (
                                   <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                                 ))}
                                 <SelectItem value="add_new" className="text-primary font-medium">+ Add New Category</SelectItem>
@@ -534,14 +535,14 @@ const AdminDashboard = () => {
                           <div>
                             <Label htmlFor="tag">Tag</Label>
                             <Select
-                              value={productForm.tag || ''}
-                              onValueChange={(value) => setProductForm({ ...productForm, tag: value || '' })}
+                              value={productForm.tag || undefined}
+                              onValueChange={(value) => setProductForm({ ...productForm, tag: value === 'none' ? '' : value })}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Select tag" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="">None</SelectItem>
+                                <SelectItem value="none">None</SelectItem>
                                 <SelectItem value="Popular">Popular</SelectItem>
                                 <SelectItem value="New">New</SelectItem>
                                 <SelectItem value="Bestseller">Bestseller</SelectItem>
@@ -680,7 +681,6 @@ const AdminDashboard = () => {
           </Tabs>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

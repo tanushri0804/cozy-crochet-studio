@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FadeInSection } from "@/components/FadeInSection";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { CheckCircle, Package, ArrowRight } from "lucide-react";
 
 const OrderConfirmation = () => {
@@ -43,7 +42,6 @@ const OrderConfirmation = () => {
           </FadeInSection>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

@@ -265,5 +265,29 @@ export const adminAPI = {
   },
 };
 
+// Wishlist API
+export const wishlistAPI = {
+  getWishlist: async () => {
+    return apiRequest('/wishlist');
+  },
+
+  addToWishlist: async (productId) => {
+    return apiRequest('/wishlist', {
+      method: 'POST',
+      body: JSON.stringify({ productId }),
+    });
+  },
+
+  removeFromWishlist: async (productId) => {
+    return apiRequest(`/wishlist/${productId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  checkWishlist: async (productId) => {
+    return apiRequest(`/wishlist/check/${productId}`);
+  },
+};
+
 export { getToken, setToken };
 

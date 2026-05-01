@@ -7,7 +7,6 @@ import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FadeInSection } from "@/components/FadeInSection";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Check, MapPin, CreditCard, Package } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -323,7 +322,6 @@ const Checkout = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

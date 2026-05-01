@@ -1,49 +1,61 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FadeInSection } from "@/components/FadeInSection";
 import { Heart, ShoppingCart } from "lucide-react";
-
-import productBunny from "@/assets/product-bunny.jpg";
-import productBlanket from "@/assets/product-blanket.jpg";
-import productFlowers from "@/assets/product-flowers.jpg";
-import productBeanie from "@/assets/product-beanie.jpg";
-
-const products = [
-  {
-    id: 1,
-    name: "Sage Bunny Friend",
-    category: "Amigurumi Toys",
-    price: 45,
-    image: productBunny,
-    tag: "Bestseller",
-  },
-  {
-    id: 2,
-    name: "Striped Baby Blanket",
-    category: "Baby Collection",
-    price: 85,
-    image: productBlanket,
-    tag: "New",
-  },
-  {
-    id: 3,
-    name: "Forever Flower Bouquet",
-    category: "Home Decor",
-    price: 55,
-    image: productFlowers,
-    tag: "Popular",
-  },
-  {
-    id: 4,
-    name: "Cozy Pom Beanie",
-    category: "Wearables",
-    price: 35,
-    image: productBeanie,
-    tag: null,
-  },
-];
+import { productsAPI } from "@/lib/api";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 export const FeaturedProducts = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const data = await productsAPI.getAll();
+        // Get first 4 products as featured
+        setProducts((data.products || []).slice(0, 4));
+      } catch (error) {
+        console.error("Failed to fetch featured products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  // Parse images helper
+  const getImageUrl = (product) => {
+    try {
+      if (product.images) {
+        if (typeof product.images === "string") {
+          return JSON.parse(product.images)[0];
+        } else if (Array.isArray(product.images)) {
+          return product.images[0];
+        }
+      }
+    } catch (e) {}
+    return "https://via.placeholder.com/400x400?text=No+Image";
+  };
+
+  if (loading) {
+    return (
+      <section id="products" className="py-24 relative">
+        <div className="absolute inset-0 bg-gradient-warm opacity-50" />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-muted-foreground">Loading featured products...</p>
+        </div>
+      </section>
+    );
+  }
   return (
     <section id="products" className="py-24 relative">
       <div className="absolute inset-0 bg-gradient-warm opacity-50" />
@@ -69,7 +81,7 @@ export const FeaturedProducts = () => {
               <Card className="group overflow-hidden bg-card border-none">
                 <div className="relative overflow-hidden">
                   <img
-                    src={product.image}
+                    src={getImageUrl(product)}
                     alt={product.name}
                     className="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110"
                   />
@@ -83,10 +95,30 @@ export const FeaturedProducts = () => {
 
                   {/* Quick actions */}
                   <div className="absolute inset-0 bg-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                    <Button variant="warm" size="icon" className="rounded-full">
-                      <Heart className="w-4 h-4" />
+                    <Button 
+                      variant="warm" 
+                      size="icon" 
+                      className={`rounded-full ${isInWishlist(product.id) ? 'bg-rose-500 text-white hover:bg-rose-600' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleWishlist(product);
+                      }}
+                    >
+                      <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
                     </Button>
-                    <Button variant="blush" size="icon" className="rounded-full">
+                    <Button 
+                      variant="blush" 
+                      size="icon" 
+                      className="rounded-full"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToCart(product);
+                        toast({
+                          title: "Added to Cart",
+                          description: `${product.name} has been added to your cart`,
+                        });
+                      }}
+                    >
                       <ShoppingCart className="w-4 h-4" />
                     </Button>
                   </div>
@@ -107,8 +139,9 @@ export const FeaturedProducts = () => {
                       variant="ghost"
                       size="sm"
                       className="text-muted-foreground hover:text-primary"
+                      asChild
                     >
-                      View Details
+                      <Link to={`/product/${product.id}`}>View Details</Link>
                     </Button>
                   </div>
                 </CardContent>

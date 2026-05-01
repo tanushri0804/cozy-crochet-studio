@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { FadeInSection } from "@/components/FadeInSection";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Minus, Plus, Trash2, Tag, ShoppingBag, ArrowRight, X } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -72,7 +71,6 @@ const Cart = () => {
             </FadeInSection>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -280,8 +278,6 @@ const Cart = () => {
           </div>
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 };

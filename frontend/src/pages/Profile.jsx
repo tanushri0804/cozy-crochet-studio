@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FadeInSection } from "@/components/FadeInSection";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { User, MapPin, Package, LogOut, Pencil, Trash2, Plus } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -240,7 +239,6 @@ const Profile = () => {
           </Tabs>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

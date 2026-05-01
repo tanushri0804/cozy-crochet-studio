@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { FadeInSection } from "@/components/FadeInSection";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Eye, EyeOff, Heart, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -311,8 +310,6 @@ const Auth = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

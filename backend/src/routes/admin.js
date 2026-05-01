@@ -11,13 +11,18 @@ router.get('/orders', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { status, userId, limit = 50, offset = 0 } = req.query;
     
+    console.log('Admin orders request - query:', req.query);
+    console.log('Admin user:', req.user);
+    
     const where = {};
-    if (status) {
+    if (status && status !== 'all') {
       where.status = status;
     }
     if (userId) {
       where.userId = userId;
     }
+
+    console.log('Where clause:', where);
 
     const [orders, total] = await Promise.all([
       prisma.order.findMany({
@@ -46,6 +51,8 @@ router.get('/orders', authenticateToken, requireAdmin, async (req, res) => {
       prisma.order.count({ where }),
     ]);
 
+    console.log(`Found ${orders.length} orders, total: ${total}`);
+    
     res.json({ orders, total });
   } catch (error) {
     console.error('Get all orders error:', error);

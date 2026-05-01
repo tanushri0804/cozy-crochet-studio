@@ -1,14 +1,15 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FadeInSection } from "@/components/FadeInSection";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Heart, ShoppingCart, Filter } from "lucide-react";
-import { products, categoryLabels } from '@/data/products';
+import { productsAPI } from '@/lib/api';
+import { categoryLabels } from '@/data/products';
 import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 import { useToast } from '@/hooks/use-toast';
 
 const categories = ['all', 'bouquets', 'scarves', 'keyrings', 'plushies', 'gifts', 'custom'];
@@ -16,10 +17,40 @@ const categories = ['all', 'bouquets', 'scarves', 'keyrings', 'plushies', 'gifts
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [sortBy, setSortBy] = useState('newest');
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const { toast } = useToast();
   
   const activeCategory = searchParams.get('category') || 'all';
+
+  // Fetch products from backend
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const data = await productsAPI.getAll();
+        setProducts(data.products || []);
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load products",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, [toast]);
+
+  // Extract unique categories from products
+  const categories = useMemo(() => {
+    const cats = [...new Set(products.map(p => p.category).filter(Boolean))];
+    return ['All Products', ...cats];
+  }, [products]);
 
   const filteredProducts = useMemo(() => {
     let result = activeCategory === 'all' 
@@ -49,7 +80,7 @@ const Shop = () => {
     }
     
     return result;
-  }, [activeCategory, sortBy]);
+  }, [activeCategory, sortBy, products]);
 
   const handleCategoryChange = (category) => {
     if (category === 'all') {
@@ -85,17 +116,20 @@ const Shop = () => {
           
           <div className="mb-8">
             <div className="flex flex-wrap gap-2 justify-center mb-6">
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={activeCategory === category ? 'default' : 'warm'}
-                  size="sm"
-                  onClick={() => handleCategoryChange(category)}
-                  className="capitalize"
-                >
-                  {category === 'all' ? 'All Products' : categoryLabels[category] || category}
-                </Button>
-              ))}
+              {categories.map((category) => {
+                const catValue = category === 'All Products' ? 'all' : category;
+                return (
+                  <Button
+                    key={category}
+                    variant={activeCategory === catValue ? 'default' : 'warm'}
+                    size="sm"
+                    onClick={() => handleCategoryChange(catValue)}
+                    className="capitalize"
+                  >
+                    {category}
+                  </Button>
+                );
+              })}
             </div>
             
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-card rounded-2xl p-4">
@@ -123,13 +157,29 @@ const Shop = () => {
           </div>
           
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product, index) => (
+            {filteredProducts.map((product, index) => {
+              // Parse images from backend (JSON string or array)
+              let images = [];
+              try {
+                if (product.images) {
+                  if (typeof product.images === 'string') {
+                    images = JSON.parse(product.images);
+                  } else if (Array.isArray(product.images)) {
+                    images = product.images;
+                  }
+                }
+              } catch (e) {
+                images = [];
+              }
+              const imageUrl = images[0] || 'https://via.placeholder.com/400x400?text=No+Image';
+              
+              return (
               <FadeInSection key={product.id} delay={index * 50}>
                 <Card className="group overflow-hidden bg-card border-none h-full flex flex-col">
                   <div className="relative overflow-hidden">
                     <Link to={`/product/${product.id}`}>
                       <img
-                        src={product.images[0]}
+                        src={imageUrl}
                         alt={product.name}
                         className="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110"
                       />
@@ -144,8 +194,16 @@ const Shop = () => {
                     )}
                     
                     <div className="absolute inset-0 bg-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                      <Button variant="warm" size="icon" className="rounded-full">
-                        <Heart className="w-4 h-4" />
+                      <Button 
+                        variant="warm" 
+                        size="icon" 
+                        className={`rounded-full ${isInWishlist(product.id) ? 'bg-rose-500 text-white hover:bg-rose-600' : ''}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          toggleWishlist(product);
+                        }}
+                      >
+                        <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
                       </Button>
                       <Button 
                         variant="blush" 
@@ -194,9 +252,13 @@ const Shop = () => {
                   </CardContent>
                 </Card>
               </FadeInSection>
-            ))}
+            )})}
           </div>
-          {filteredProducts.length === 0 && (
+          {loading ? (
+            <div className="text-center py-16">
+              <p className="text-muted-foreground text-lg">Loading products...</p>
+            </div>
+          ) : filteredProducts.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-muted-foreground text-lg">No products found in this category.</p>
               <Button 
@@ -207,11 +269,9 @@ const Shop = () => {
                 View All Products
               </Button>
             </div>
-          )}
+          ) : null}
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 };

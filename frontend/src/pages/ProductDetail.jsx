@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FadeInSection } from "@/components/FadeInSection";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Heart, ShoppingCart, Minus, Plus, ChevronLeft, Truck, Shield, Gift } from "lucide-react";
 import { getProductById, categoryLabels, products } from '@/data/products';
 import { useCart } from '@/contexts/CartContext';
@@ -249,8 +248,6 @@ const ProductDetail = () => {
           )}
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 };
