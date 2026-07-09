@@ -22,7 +22,7 @@ const Shop = () => {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { toast } = useToast();
-  
+   
   const activeCategory = searchParams.get('category') || 'all';
 
   // Fetch products from backend

@@ -100,6 +100,10 @@ router.post('/',
         careInstructions: req.body.careInstructions || null,
         tag: req.body.tag || null,
         inStock: req.body.inStock !== undefined ? req.body.inStock : true,
+        materials: req.body.materials || null,
+        weight: req.body.weight ? parseFloat(req.body.weight) : null,
+        specifications: req.body.specifications || null,
+        measurements: req.body.measurements || null,
       };
 
       const product = await prisma.product.create({

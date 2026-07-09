@@ -1,6 +1,6 @@
 import { Heart, ShoppingBag, Sparkles, Menu, X, User, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,10 +8,20 @@ import { useWishlist } from "@/contexts/WishlistContext";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
   const { itemCount } = useCart();
   const { wishlistCount } = useWishlist();
   const { isAuthenticated, user } = useAuth();
+
+  // Check admin status whenever user changes
+  useEffect(() => {
+    const checkAdmin = () => {
+      const userData = user || JSON.parse(localStorage.getItem('user') || '{}');
+      setIsAdmin(userData?.role === 'admin');
+    };
+    checkAdmin();
+  }, [user, isAuthenticated]);
 
   const isHomePage = location.pathname === "/";
 
@@ -94,7 +104,7 @@ export const Header = () => {
 
             {isAuthenticated ? (
               <div className="flex items-center gap-2">
-                {user?.role === 'admin' && (
+                {isAdmin && (
                   <Button variant="ghost" size="sm" asChild>
                     <Link to="/admin">
                       <Settings className="w-4 h-4 mr-1" />
@@ -169,7 +179,7 @@ export const Header = () => {
 
             {isAuthenticated ? (
               <>
-                {user?.role === 'admin' && (
+                {isAdmin && (
                   <Link
                     to="/admin"
                     className="text-muted-foreground hover:text-primary py-2 flex items-center gap-2"

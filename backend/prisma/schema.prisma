@@ -23,6 +23,7 @@ model User {
   addresses Address[]
   orders    Order[]
   wishlist  Wishlist[]
+  reviews   Review[]
 
   @@map("users")
 }
@@ -61,9 +62,17 @@ model Product {
   inStock         Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-
+  
+  // Product details
+  specifications  String?  // JSON string of key-value pairs
+  measurements    String?  // JSON string of dimensions
+  materials       String?
+  weight          Float?   // in grams
+  
+  // Relations
   orderItems OrderItem[]
   wishlistItems Wishlist[]
+  reviews       Review[]
 
   @@map("products")
 }
@@ -79,6 +88,22 @@ model Wishlist {
 
   @@unique([userId, productId])
   @@map("wishlists")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  rating    Int      // 1-5 stars
+  title     String?
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
 }
 
 model Coupon {

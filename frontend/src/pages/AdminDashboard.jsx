@@ -42,6 +42,10 @@ const AdminDashboard = () => {
   });
   const [categories, setCategories] = useState(['Bouquets', 'Scarves', 'Keyrings', 'Plushies', 'Gifts', 'Custom Orders']);
   const [newCategory, setNewCategory] = useState('');
+  
+  // Dynamic fields for measurements and specifications
+  const [measurementFields, setMeasurementFields] = useState([{ key: '', value: '' }]);
+  const [specificationFields, setSpecificationFields] = useState([{ key: '', value: '' }]);
   const [showAddCategory, setShowAddCategory] = useState(false);
 
   useEffect(() => {
@@ -103,6 +107,8 @@ const AdminDashboard = () => {
     setIsFormReady(false);
     setShowAddCategory(false);
     setNewCategory('');
+    setMeasurementFields([]); // Reset dynamic fields
+    setSpecificationFields([]); // Reset dynamic fields
   };
 
   const handleAddCategory = () => {
@@ -159,10 +165,40 @@ const AdminDashboard = () => {
           imageUrl: firstImage,
           tag: product.tag || '',
           inStock: product.inStock !== undefined ? product.inStock : true,
+          materials: product.materials || '',
+          weight: product.weight ? product.weight.toString() : '',
+          specifications: product.specifications || '',
+          measurements: product.measurements || '',
         };
         
         console.log('Setting product form:', formData);
         setProductForm(formData);
+        
+        // Parse measurements and specifications from JSON to dynamic fields
+        if (product.measurements) {
+          try {
+            const measurements = JSON.parse(product.measurements);
+            const fields = Object.entries(measurements).map(([key, value]) => ({ key, value: String(value) }));
+            setMeasurementFields(fields.length > 0 ? fields : [{ key: '', value: '' }]);
+          } catch {
+            setMeasurementFields([{ key: '', value: '' }]);
+          }
+        } else {
+          setMeasurementFields([{ key: '', value: '' }]);
+        }
+        
+        if (product.specifications) {
+          try {
+            const specs = JSON.parse(product.specifications);
+            const fields = Object.entries(specs).map(([key, value]) => ({ key, value: String(value) }));
+            setSpecificationFields(fields.length > 0 ? fields : [{ key: '', value: '' }]);
+          } catch {
+            setSpecificationFields([{ key: '', value: '' }]);
+          }
+        } else {
+          setSpecificationFields([{ key: '', value: '' }]);
+        }
+        
         setIsFormReady(true);
       } else {
         resetProductForm();
@@ -184,6 +220,21 @@ const AdminDashboard = () => {
   const handleProductSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Convert dynamic fields to JSON
+      const measurementsObj = {};
+      measurementFields.forEach(field => {
+        if (field.key && field.value) {
+          measurementsObj[field.key] = field.value;
+        }
+      });
+      
+      const specificationsObj = {};
+      specificationFields.forEach(field => {
+        if (field.key && field.value) {
+          specificationsObj[field.key] = field.value;
+        }
+      });
+
       const productData = {
         name: productForm.name,
         category: productForm.category,
@@ -194,6 +245,10 @@ const AdminDashboard = () => {
         images: productForm.imageUrl ? [productForm.imageUrl] : [],
         tag: productForm.tag || null,
         inStock: productForm.inStock,
+        materials: productForm.materials || null,
+        weight: productForm.weight ? parseFloat(productForm.weight) : null,
+        specifications: Object.keys(specificationsObj).length > 0 ? JSON.stringify(specificationsObj) : null,
+        measurements: Object.keys(measurementsObj).length > 0 ? JSON.stringify(measurementsObj) : null,
       };
 
       if (editingProduct) {
@@ -507,6 +562,143 @@ const AdminDashboard = () => {
                             onChange={(e) => setProductForm({ ...productForm, careInstructions: e.target.value })}
                             rows={2}
                           />
+                        </div>
+
+                        {/* Product Details Section */}
+                        <div className="border-t pt-4 mt-4">
+                          <h4 className="font-medium mb-3">Product Details & Specifications</h4>
+                          
+                          <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                              <Label htmlFor="materials">Materials</Label>
+                              <Input
+                                id="materials"
+                                value={productForm.materials || ''}
+                                onChange={(e) => setProductForm({ ...productForm, materials: e.target.value })}
+                                placeholder="e.g., Premium cotton yarn"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="weight">Weight (grams)</Label>
+                              <Input
+                                id="weight"
+                                type="number"
+                                value={productForm.weight || ''}
+                                onChange={(e) => setProductForm({ ...productForm, weight: e.target.value })}
+                                placeholder="e.g., 250"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Measurements - Dynamic Fields */}
+                          <div className="mb-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <Label>Measurements</Label>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setMeasurementFields([...measurementFields, { key: '', value: '' }])}
+                              >
+                                <Plus className="w-4 h-4 mr-1" />
+                                Add
+                              </Button>
+                            </div>
+                            <div className="space-y-2">
+                              {measurementFields.map((field, index) => (
+                                <div key={index} className="flex gap-2 items-center">
+                                  <Input
+                                    placeholder="Name (e.g., Height)"
+                                    value={field.key}
+                                    onChange={(e) => {
+                                      const newFields = [...measurementFields];
+                                      newFields[index].key = e.target.value;
+                                      setMeasurementFields(newFields);
+                                    }}
+                                    className="flex-1"
+                                  />
+                                  <Input
+                                    placeholder="Value (e.g., 30cm)"
+                                    value={field.value}
+                                    onChange={(e) => {
+                                      const newFields = [...measurementFields];
+                                      newFields[index].value = e.target.value;
+                                      setMeasurementFields(newFields);
+                                    }}
+                                    className="flex-1"
+                                  />
+                                  {measurementFields.length > 1 && (
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => {
+                                        const newFields = measurementFields.filter((_, i) => i !== index);
+                                        setMeasurementFields(newFields);
+                                      }}
+                                    >
+                                      <Trash2 className="w-4 h-4 text-destructive" />
+                                    </Button>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Specifications - Dynamic Fields */}
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <Label>Additional Specifications</Label>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSpecificationFields([...specificationFields, { key: '', value: '' }])}
+                              >
+                                <Plus className="w-4 h-4 mr-1" />
+                                Add
+                              </Button>
+                            </div>
+                            <div className="space-y-2">
+                              {specificationFields.map((field, index) => (
+                                <div key={index} className="flex gap-2 items-center">
+                                  <Input
+                                    placeholder="Property (e.g., Handmade)"
+                                    value={field.key}
+                                    onChange={(e) => {
+                                      const newFields = [...specificationFields];
+                                      newFields[index].key = e.target.value;
+                                      setSpecificationFields(newFields);
+                                    }}
+                                    className="flex-1"
+                                  />
+                                  <Input
+                                    placeholder="Value (e.g., Yes)"
+                                    value={field.value}
+                                    onChange={(e) => {
+                                      const newFields = [...specificationFields];
+                                      newFields[index].value = e.target.value;
+                                      setSpecificationFields(newFields);
+                                    }}
+                                    className="flex-1"
+                                  />
+                                  {specificationFields.length > 1 && (
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => {
+                                        const newFields = specificationFields.filter((_, i) => i !== index);
+                                        setSpecificationFields(newFields);
+                                      }}
+                                    >
+                                      <Trash2 className="w-4 h-4 text-destructive" />
+                                    </Button>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         </div>
 
                         <div>

@@ -289,5 +289,41 @@ export const wishlistAPI = {
   },
 };
 
+// Reviews API
+export const reviewsAPI = {
+  getProductReviews: async (productId, params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    return apiRequest(`/reviews/product/${productId}${queryString ? `?${queryString}` : ''}`);
+  },
+
+  createReview: async (data) => {
+    return apiRequest('/reviews', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateReview: async (reviewId, data) => {
+    return apiRequest(`/reviews/${reviewId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteReview: async (reviewId) => {
+    return apiRequest(`/reviews/${reviewId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  getMyReviews: async () => {
+    return apiRequest('/reviews/my-reviews');
+  },
+
+  canReview: async (productId) => {
+    return apiRequest(`/reviews/can-review/${productId}`);
+  },
+};
+
 export { getToken, setToken };
 

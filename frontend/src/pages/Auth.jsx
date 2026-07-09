@@ -82,7 +82,10 @@ const Auth = () => {
             title: "Welcome back!",
             description: "You've successfully logged in.",
           });
-          navigate(redirectPath);
+          // Delay navigation to let Chrome detect the login
+          setTimeout(() => {
+            navigate(redirectPath);
+          }, 100);
         } else {
           setErrors({ general: result.error || "Login failed" });
         }
@@ -174,7 +177,7 @@ const Auth = () => {
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4" autoComplete="on">
                   {!isLogin && (
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -216,6 +219,7 @@ const Auth = () => {
                       id="email"
                       name="email"
                       type="email"
+                      autoComplete="email"
                       value={formData.email}
                       onChange={handleChange}
                       className="mt-1.5 bg-background"
@@ -234,6 +238,7 @@ const Auth = () => {
                         id="password"
                         name="password"
                         type={showPassword ? "text" : "password"}
+                        autoComplete={isLogin ? "current-password" : "new-password"}
                         value={formData.password}
                         onChange={handleChange}
                         className="bg-background pr-10"
@@ -263,6 +268,7 @@ const Auth = () => {
                         id="confirmPassword"
                         name="confirmPassword"
                         type={showPassword ? "text" : "password"}
+                        autoComplete="new-password"
                         value={formData.confirmPassword}
                         onChange={handleChange}
                         className="mt-1.5 bg-background"
