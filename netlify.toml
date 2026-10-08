@@ -1,0 +1,13 @@
+# Frontend lives in frontend/. Netlify builds that package and publishes Vite's dist/.
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+# BrowserRouter paths such as /shop or /product/:id have no real files.
+# Rewrite them to index.html (200) so a refresh stays on the same page.
+# Existing files (JS, CSS, images) are still served as themselves.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
