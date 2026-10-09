@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (error) {
         // Token invalid or expired, clear storage
-        if (error.message === 'UNAUTHORIZED' || error.message.includes('401')) {
+        if (error.message === 'UNAUTHORIZED' || error.message.includes('401') || error.message.includes('Invalid or expired token')) {
           localStorage.removeItem('auth_token');
           localStorage.removeItem(USER_STORAGE_KEY);
           setUser(null);

@@ -45,7 +45,7 @@ const apiRequest = async (endpoint, options = {}) => {
 
     if (!response.ok) {
       // Don't throw for 401 on /auth/me - it's expected when not logged in
-      if (response.status === 401 && endpoint === '/auth/me') {
+      if ((response.status === 401 || response.status === 403) && endpoint === '/auth/me') {
         throw new Error('UNAUTHORIZED');
       }
       throw new Error(data.message || `Request failed with status ${response.status}`);
